@@ -106,7 +106,7 @@ const FocusViewModal: React.FC<FocusViewModalProps> = ({
             />
             <div className="text-lg font-medium">
               <span>鴻森智能科技股份有限公司</span>
-              <span></span>
+              <span>HONGSEN Intelligent Technology Co.,Ltd.</span>
             </div>
           </div>
         </div>
