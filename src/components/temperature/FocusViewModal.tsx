@@ -104,7 +104,10 @@ const FocusViewModal: React.FC<FocusViewModalProps> = ({
               alt="鴻森智能科技"
               className="h-10 w-auto"
             />
-            <span className="text-lg font-medium">鴻森智能科技股份有限公司</span>
+            <div className="text-lg font-medium">
+              <span>鴻森智能科技股份有限公司</span>
+              <span></span>
+            </div>
           </div>
         </div>
       </div>
