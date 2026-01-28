@@ -95,6 +95,9 @@ const FocusViewModal: React.FC<FocusViewModalProps> = ({
       {/* Footer with instructions */}
       <div className="bg-gray-900 text-gray-300 py-4 px-6">
         <div className="flex items-center space-y-3 justify-between">
+          <div className="text-sm text-gray-400">
+            按 ESC 鍵或點擊右上角 ✕ 按鈕退出專注顯示模式
+          </div> 
           <div className="flex items-center space-x-3">
             <img
               src="/hs_logo.png"
@@ -102,9 +105,6 @@ const FocusViewModal: React.FC<FocusViewModalProps> = ({
               className="h-10 w-auto"
             />
             <span className="text-lg font-medium">鴻森智能科技股份有限公司</span>
-          </div>
-          <div className="text-sm text-gray-400">
-            按 ESC 鍵或點擊右上角 ✕ 按鈕退出專注顯示模式
           </div>
         </div>
       </div>
