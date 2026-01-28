@@ -102,7 +102,7 @@ const FocusViewModal: React.FC<FocusViewModalProps> = ({
             <img
               src="/hs_logo.png"
               alt="鴻森智能科技"
-              className="h-10 w-auto"
+              className="h-12 w-auto"
             />
             <div> 
               <div className="text-lg font-medium">鴻森智能科技股份有限公司</div>
