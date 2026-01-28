@@ -30,7 +30,7 @@ const EnvironmentMonitoring: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const [isFocusViewOpen, setIsFocusViewOpen] = useState(false);
+  const [isFocusViewOpen, setIsFocusViewOpen] = useState(true);
 
   // Auto-refresh interval (5 minutes)
   const REFRESH_INTERVAL = 5 * 60 * 1000;
@@ -266,7 +266,6 @@ const EnvironmentMonitoring: React.FC = () => {
         isOpen={isFocusViewOpen}
         onClose={() => setIsFocusViewOpen(false)}
         latestData={latestData}
-        allThresholds={allThresholds}
         globalThresholds={globalThresholds}
         lastRefresh={lastRefresh}
       />
