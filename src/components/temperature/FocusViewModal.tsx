@@ -93,7 +93,7 @@ const FocusViewModal: React.FC<FocusViewModalProps> = ({
       </div>
 
       {/* Footer with instructions */}
-      <div className="bg-gray-900 text-gray-300 py-4">
+      <div className="bg-gray-900 text-gray-300 py-4 px-6">
         <div className="flex items-center space-y-3 justify-between">
           <div className="flex items-center space-x-3">
             <img
