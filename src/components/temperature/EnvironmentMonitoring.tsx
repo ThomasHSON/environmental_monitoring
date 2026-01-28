@@ -154,111 +154,112 @@ const EnvironmentMonitoring: React.FC = () => {
 
   return (
     <div className="mb-12">
-      <div className="space-y-8"></div>
-      {/* Error display */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start">
-          <AlertTriangle size={20} className="text-red-600 mr-3 flex-shrink-0 mt-0.5" />
-          <div>
-            <h3 className="font-medium text-red-800">載入數據時發生錯誤</h3>
-            <p className="text-red-700 text-sm mt-1">{error}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Top Section: Real-time Overview */}
-      <section>
-        {/* Header row with label, last update time, and refresh button */}
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold text-gray-800">{t('realtime.overview')}</h3>
-          <div className="flex items-center space-x-3">
-            <MuteAlarmButton />
-            <button
-              onClick={() => setIsSettingsModalOpen(true)}
-              className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 transition-colors"
-              title="警報設定"
-            >
-              <Settings size={16} className="mr-2" />
-              設定
-            </button>
-            <button
-              onClick={() => setIsFocusViewOpen(true)}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
-              title="專注顯示模式"
-            >
-              <Maximize size={16} className="mr-2" />
-              專注顯示
-            </button>
-            <button
-              onClick={handleRefresh}
-              disabled={loadingLatest || loadingChart}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <RefreshCw 
-                size={16} 
-                className={`mr-2 ${(loadingLatest || loadingChart) ? 'animate-spin' : ''}`} 
-              />
-              重新整理
-            </button>
-          </div>
-        </div>
-        
-        {loadingLatest ? (
-          <div className="bg-white rounded-lg shadow-sm border p-12 flex items-center justify-center">
-            <LoadingSpinner size="large" />
-            <span className="ml-3 text-gray-500">載入即時數據中...</span>
-          </div>
-        ) : latestData.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
-            <p className="text-gray-500">暫無即時數據</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {latestData.map((record) => (
-              <TemperatureOverviewCard 
-                key={record.GUID} 
-                record={record} 
-                globalThresholds={globalThresholds}
-              />
-            ))}
+      <div className="space-y-8">
+        {/* Error display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start">
+            <AlertTriangle size={20} className="text-red-600 mr-3 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-red-800">載入數據時發生錯誤</h3>
+              <p className="text-red-700 text-sm mt-1">{error}</p>
+            </div>
           </div>
         )}
-      </section>
-
-      {/* Bottom Section: Daily Line Charts */}
-      <section>
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">{t('temp.humidity.trend.chart')}</h3>
-        
-        {loadingChart ? (
-          <div className="bg-white rounded-lg shadow-sm border p-12 flex items-center justify-center">
-            <LoadingSpinner size="large" />
-            <span className="ml-3 text-gray-500">載入圖表數據中...</span>
+  
+        {/* Top Section: Real-time Overview */}
+        <section>
+          {/* Header row with label, last update time, and refresh button */}
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold text-gray-800">{t('realtime.overview')}</h3>
+            <div className="flex items-center space-x-3">
+              <MuteAlarmButton />
+              <button
+                onClick={() => setIsSettingsModalOpen(true)}
+                className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 transition-colors"
+                title="警報設定"
+              >
+                <Settings size={16} className="mr-2" />
+                設定
+              </button>
+              <button
+                onClick={() => setIsFocusViewOpen(true)}
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
+                title="專注顯示模式"
+              >
+                <Maximize size={16} className="mr-2" />
+                專注顯示
+              </button>
+              <button
+                onClick={handleRefresh}
+                disabled={loadingLatest || loadingChart}
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <RefreshCw 
+                  size={16} 
+                  className={`mr-2 ${(loadingLatest || loadingChart) ? 'animate-spin' : ''}`} 
+                />
+                重新整理
+              </button>
+            </div>
           </div>
-        ) : uniqueUnits.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
-            <p className="text-gray-500">暫無圖表數據</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {uniqueUnits.map((unitName) => (
-              <TemperatureChart
-                key={unitName}
-                unitName={unitName}
-                data={chartData}
-              />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Settings Modal */}
-      <SettingsModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-        allThresholds={allThresholds}
-        globalThresholds={globalThresholds}
-        onSettingsUpdate={handleSettingsUpdate}
-      />
+          
+          {loadingLatest ? (
+            <div className="bg-white rounded-lg shadow-sm border p-12 flex items-center justify-center">
+              <LoadingSpinner size="large" />
+              <span className="ml-3 text-gray-500">載入即時數據中...</span>
+            </div>
+          ) : latestData.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
+              <p className="text-gray-500">暫無即時數據</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {latestData.map((record) => (
+                <TemperatureOverviewCard 
+                  key={record.GUID} 
+                  record={record} 
+                  globalThresholds={globalThresholds}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+  
+        {/* Bottom Section: Daily Line Charts */}
+        <section>
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">{t('temp.humidity.trend.chart')}</h3>
+          
+          {loadingChart ? (
+            <div className="bg-white rounded-lg shadow-sm border p-12 flex items-center justify-center">
+              <LoadingSpinner size="large" />
+              <span className="ml-3 text-gray-500">載入圖表數據中...</span>
+            </div>
+          ) : uniqueUnits.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
+              <p className="text-gray-500">暫無圖表數據</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {uniqueUnits.map((unitName) => (
+                <TemperatureChart
+                  key={unitName}
+                  unitName={unitName}
+                  data={chartData}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+  
+        {/* Settings Modal */}
+        <SettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+          allThresholds={allThresholds}
+          globalThresholds={globalThresholds}
+          onSettingsUpdate={handleSettingsUpdate}
+        />
+      </div>
 
       {/* Focus View Modal */}
       <FocusViewModal
