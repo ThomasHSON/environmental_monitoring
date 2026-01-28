@@ -153,7 +153,7 @@ const EnvironmentMonitoring: React.FC = () => {
   const uniqueUnits = Array.from(new Set(chartData.map(record => record.name)));
 
   return (
-    <div className="space-y-8 mb-12">
+    <div className="mb-12">
 
       {/* Error display */}
       {error && (
