@@ -34,15 +34,26 @@ const EnvironmentMonitoring: React.FC = () => {
 
   // Auto-refresh interval (5 minutes)
   const REFRESH_INTERVAL = 5 * 60 * 1000;
+  // Page reload interval (3 minutes)
+  const PAGE_RELOAD_INTERVAL = 3 * 60 * 1000;
 
   useEffect(() => {
     loadData();
     loadThresholds();
-    
+
     // Set up auto-refresh
     const interval = setInterval(loadData, REFRESH_INTERVAL);
-    
+
     return () => clearInterval(interval);
+  }, []);
+
+  // Auto-reload page every 3 minutes to prevent idle state
+  useEffect(() => {
+    const reloadInterval = setInterval(() => {
+      window.location.reload();
+    }, PAGE_RELOAD_INTERVAL);
+
+    return () => clearInterval(reloadInterval);
   }, []);
 
   const loadData = async () => {
