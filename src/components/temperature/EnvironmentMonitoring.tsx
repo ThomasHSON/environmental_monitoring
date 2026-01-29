@@ -49,35 +49,47 @@ const EnvironmentMonitoring: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Wake Lock and keepalive utilities
-  const requestWakeLock = async () => {
-    try {
-      if ('wakeLock' in navigator) {
-        const wakeLock = await (navigator as any).wakeLock.request('screen');
-        return wakeLock;
-      }
-    } catch (err) {
-      console.error('Wake Lock error:', err);
-    }
-    return null;
-  };
-
-  const triggerMouseMove = () => {
-    document.dispatchEvent(new MouseEvent('mousemove'));
-  };
-
-  const performKeepAlive = async () => {
-    await requestWakeLock();
-    triggerMouseMove();
-  };
-
-  // Main reload cycle: Check timestamp every second
+  // Wake Lock and keepalive utilities with proper state management
   useEffect(() => {
-    // Record initial timestamp when entering the page
+    let wakeLock: any = null;
+
+    const requestWakeLock = async () => {
+      try {
+        if ('wakeLock' in navigator && document.visibilityState === 'visible') {
+          wakeLock = await (navigator as any).wakeLock.request('screen');
+
+          wakeLock.addEventListener('release', () => {
+            console.log('Wake Lock released');
+          });
+        }
+      } catch (err) {
+        console.error('Wake Lock error:', err);
+      }
+    };
+
+    const triggerMouseMove = () => {
+      document.dispatchEvent(new MouseEvent('mousemove'));
+    };
+
+    const performKeepAlive = async () => {
+      // Re-request wake lock if it was released
+      if (!wakeLock || wakeLock.released) {
+        await requestWakeLock();
+      }
+      triggerMouseMove();
+    };
+
+    // Re-request wake lock when page becomes visible
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && (!wakeLock || wakeLock.released)) {
+        await requestWakeLock();
+      }
+    };
+
+    // Main reload cycle: Check timestamp every second
     const now = Date.now();
     localStorage.setItem(TIMESTAMP_KEY, now.toString());
 
-    // Check timestamp every second
     const checkInterval = setInterval(async () => {
       const storedTimestamp = localStorage.getItem(TIMESTAMP_KEY);
       if (storedTimestamp) {
@@ -90,18 +102,28 @@ const EnvironmentMonitoring: React.FC = () => {
           window.location.reload();
         }
       }
-    }, 1000); // Check every second
+    }, 1000);
 
-    return () => clearInterval(checkInterval);
-  }, []);
-
-  // Backup keepalive timer: Every 10 seconds
-  useEffect(() => {
+    // Backup keepalive timer: Every 10 seconds
     const keepaliveInterval = setInterval(async () => {
       await performKeepAlive();
     }, KEEPALIVE_INTERVAL);
 
-    return () => clearInterval(keepaliveInterval);
+    // Initial wake lock request
+    requestWakeLock();
+
+    // Listen for visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Cleanup
+    return () => {
+      clearInterval(checkInterval);
+      clearInterval(keepaliveInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (wakeLock && !wakeLock.released) {
+        wakeLock.release();
+      }
+    };
   }, []);
 
   const loadData = async () => {
