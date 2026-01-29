@@ -34,8 +34,10 @@ const EnvironmentMonitoring: React.FC = () => {
 
   // Auto-refresh interval (5 minutes)
   const REFRESH_INTERVAL = 5 * 60 * 1000;
-  // Page reload interval (3 minutes)
-  const PAGE_RELOAD_INTERVAL = 3 * 60 * 1000;
+  // Page reload interval (5 minutes)
+  const PAGE_RELOAD_INTERVAL = 5 * 60 * 1000;
+  const TIMESTAMP_KEY = 'page_timestamp';
+  const KEEPALIVE_INTERVAL = 10 * 1000; // 10 seconds
 
   useEffect(() => {
     loadData();
@@ -47,13 +49,59 @@ const EnvironmentMonitoring: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Auto-reload page every 3 minutes to prevent idle state
-  useEffect(() => {
-    const reloadInterval = setInterval(() => {
-      window.location.reload();
-    }, PAGE_RELOAD_INTERVAL);
+  // Wake Lock and keepalive utilities
+  const requestWakeLock = async () => {
+    try {
+      if ('wakeLock' in navigator) {
+        const wakeLock = await (navigator as any).wakeLock.request('screen');
+        return wakeLock;
+      }
+    } catch (err) {
+      console.error('Wake Lock error:', err);
+    }
+    return null;
+  };
 
-    return () => clearInterval(reloadInterval);
+  const triggerMouseMove = () => {
+    document.dispatchEvent(new MouseEvent('mousemove'));
+  };
+
+  const performKeepAlive = async () => {
+    await requestWakeLock();
+    triggerMouseMove();
+  };
+
+  // Main reload cycle: Check timestamp every second
+  useEffect(() => {
+    // Record initial timestamp when entering the page
+    const now = Date.now();
+    localStorage.setItem(TIMESTAMP_KEY, now.toString());
+
+    // Check timestamp every second
+    const checkInterval = setInterval(async () => {
+      const storedTimestamp = localStorage.getItem(TIMESTAMP_KEY);
+      if (storedTimestamp) {
+        const elapsed = Date.now() - parseInt(storedTimestamp);
+        // If more than 5 minutes have passed
+        if (elapsed >= PAGE_RELOAD_INTERVAL) {
+          // Keep screen awake and simulate activity
+          await performKeepAlive();
+          // Reload the page
+          window.location.reload();
+        }
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(checkInterval);
+  }, []);
+
+  // Backup keepalive timer: Every 10 seconds
+  useEffect(() => {
+    const keepaliveInterval = setInterval(async () => {
+      await performKeepAlive();
+    }, KEEPALIVE_INTERVAL);
+
+    return () => clearInterval(keepaliveInterval);
   }, []);
 
   const loadData = async () => {
