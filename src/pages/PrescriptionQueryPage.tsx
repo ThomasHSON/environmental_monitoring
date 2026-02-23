@@ -10,7 +10,7 @@ import LanguageToggle from '../components/LanguageToggle';
 import ExportButton from '../components/common/ExportButton';
 import { useLanguage } from '../contexts/LanguageContext';
 import { fetchPrescriptionRecords, downloadPrescriptionRecords } from '../services/api';
-import { fetchTemperatureByTime } from '../services/temperature';
+import { fetchTemperatureByTime, downloadTemperatureExcel } from '../services/temperature';
 import { loadConfig, getConfig } from '../config';
 import { getUserSession } from '../services/auth';
 import { 
@@ -94,11 +94,11 @@ const PrescriptionQueryPage: React.FC = () => {
   const handleTemperatureSearch = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const startDateTime = combineDateTimeString(startDate, startTime);
       const endDateTime = combineDateTimeString(endDate, endTime);
-      
+
       const response = await fetchTemperatureByTime(startDateTime, endDateTime);
       if (response.Code === 200) {
         setTemperatureData(response.Data);
@@ -110,6 +110,19 @@ const PrescriptionQueryPage: React.FC = () => {
       setTemperatureData([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportTemperature = async () => {
+    setDownloading(true);
+    setError(null);
+
+    try {
+      await downloadTemperatureExcel();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '匯出報表時發生錯誤');
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -270,10 +283,13 @@ const PrescriptionQueryPage: React.FC = () => {
                       {t('search.button')} {t('temp.humidity.trend')}
                     </button>
                     <button
-                      onClick={() => {}}
-                      disabled={temperatureData.length === 0}
+                      onClick={handleExportTemperature}
+                      disabled={downloading}
                       className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
                     >
+                      {downloading ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      ) : null}
                       {t('export.button')}
                     </button>
                   </div>

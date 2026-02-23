@@ -145,13 +145,13 @@ export const processHistoricalTemperatureData = (rawData: any[]): any[] => {
  */
 export const fetchTodayTemperatureData = async (): Promise<TemperatureResponse> => {
   const now = new Date();
-  
+
   // Get today's date in YYYY-MM-DD format
   const today = now.toISOString().split('T')[0];
-  
+
   // Create start of today (00:00:00)
   const startDateTime = `${today} 00:00:00`;
-  
+
   // Create current time in YYYY-MM-DD HH:mm:ss format
   //const endDateTime = now.toISOString().slice(0, 19).replace('T', ' ');
   const endDateTime = `${today} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
@@ -160,6 +160,46 @@ export const fetchTodayTemperatureData = async (): Promise<TemperatureResponse> 
     endDateTime,
     today
   });
-  
+
   return await fetchTemperatureByTime(startDateTime, endDateTime);
+};
+
+/**
+ * Downloads temperature and humidity data as Excel for the current month
+ */
+export const downloadTemperatureExcel = async (): Promise<void> => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+
+  // Get the first day of current month
+  const firstDay = new Date(year, month - 1, 1);
+  const firstDayStr = `${year}-${pad(month)}-01 00:00:00`;
+
+  // Get the last day of current month
+  const lastDay = new Date(year, month, 0);
+  const lastDayStr = `${year}-${pad(month)}-${pad(lastDay.getDate())} 23:59:59`;
+
+  console.log('Downloading temperature Excel for current month:', {
+    firstDayStr,
+    lastDayStr
+  });
+
+  const response = await apiCall('/api/temperature/download_datas_excel', {
+    method: 'POST',
+    body: {
+      ValueAry: [firstDayStr, lastDayStr]
+    },
+    responseType: 'blob'
+  });
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${year}-${pad(month)}報表.xlsx`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
 };
