@@ -118,7 +118,9 @@ const PrescriptionQueryPage: React.FC = () => {
     setError(null);
 
     try {
-      await downloadTemperatureExcel();
+      const startDateTime = combineDateTimeString(startDate, startTime);
+      const endDateTime = combineDateTimeString(endDate, endTime);
+      await downloadTemperatureExcel(startDateTime, endDateTime);
     } catch (err) {
       setError(err instanceof Error ? err.message : '匯出報表時發生錯誤');
     } finally {

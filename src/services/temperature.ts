@@ -165,41 +165,63 @@ export const fetchTodayTemperatureData = async (): Promise<TemperatureResponse> 
 };
 
 /**
- * Downloads temperature and humidity data as Excel for the current month
+ * Downloads temperature and humidity data as Excel for the selected date range
  */
-export const downloadTemperatureExcel = async (): Promise<void> => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+export const downloadTemperatureExcel = async (startDateTime: string, endDateTime: string): Promise<void> => {
+  // Parse start and end dates
+  const startDate = new Date(startDateTime.split(' ')[0]);
+  const endDate = new Date(endDateTime.split(' ')[0]);
 
-  // Get the first day of current month
-  const firstDay = new Date(year, month - 1, 1);
-  const firstDayStr = `${year}-${pad(month)}-01 00:00:00`;
+  // Generate list of months in the range
+  const months: { year: number; month: number }[] = [];
+  const current = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  const end = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
 
-  // Get the last day of current month
-  const lastDay = new Date(year, month, 0);
-  const lastDayStr = `${year}-${pad(month)}-${pad(lastDay.getDate())} 23:59:59`;
+  while (current <= end) {
+    months.push({
+      year: current.getFullYear(),
+      month: current.getMonth() + 1
+    });
+    current.setMonth(current.getMonth() + 1);
+  }
 
-  console.log('Downloading temperature Excel for current month:', {
-    firstDayStr,
-    lastDayStr
-  });
+  console.log('Downloading temperature Excel for months:', months);
 
-  const response = await apiCall('/api/temperature/download_datas_excel', {
-    method: 'POST',
-    body: {
-      ValueAry: [firstDayStr, lastDayStr]
-    },
-    responseType: 'blob'
-  });
+  // Download each month
+  for (const { year, month } of months) {
+    // Get the first day of the month
+    const firstDayStr = `${year}-${pad(month)}-01 00:00:00`;
 
-  const blob = await response.blob();
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${year}-${pad(month)}報表.xlsx`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
+    // Get the last day of the month
+    const lastDay = new Date(year, month, 0);
+    const lastDayStr = `${year}-${pad(month)}-${pad(lastDay.getDate())} 23:59:59`;
+
+    console.log(`Downloading ${year}-${pad(month)} report:`, {
+      firstDayStr,
+      lastDayStr
+    });
+
+    const response = await apiCall('/api/temperature/download_datas_excel', {
+      method: 'POST',
+      body: {
+        ValueAry: [firstDayStr, lastDayStr]
+      },
+      responseType: 'blob'
+    });
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${year}-${pad(month)}報表.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    // Add a small delay between downloads to avoid overwhelming the browser
+    if (months.length > 1) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
 };
