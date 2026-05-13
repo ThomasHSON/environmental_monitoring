@@ -187,7 +187,7 @@ const PrescriptionQueryPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <main className="flex-1 p-4 md:p-6 lg:p-8 pb-8">
-        <div className="max-w-screen-xl mx-auto">
+        <div className="mx-auto">
           <header className="h-[80px] mb-2">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
